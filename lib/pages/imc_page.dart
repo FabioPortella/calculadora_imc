@@ -14,7 +14,7 @@ class ImcPage extends StatefulWidget {
 class _ImcPageState extends State<ImcPage> {
   late ImcRepository imcRepository;
   var _indiceIMC = const <ImcModel>[];
-  var descricaoController = TextEditingController();
+  var descricaoController = TextEditingController(text: "");
   double peso = 0;
   double altura = 0;
 
@@ -53,8 +53,8 @@ class _ImcPageState extends State<ImcPage> {
                   ),
                   content: StatefulBuilder(builder: (context, setState) {
                     return Wrap(
-                      children: [
-                        const TextLabel(texto: "Descrição"),
+                      children: [                       
+                        const TextLabel(texto: "Nome"),
                         TextField(
                           controller: descricaoController,
                         ),
@@ -142,7 +142,7 @@ class _ImcPageState extends State<ImcPage> {
                     child: ListTile(
                       //leading: const Text(),
                       title: Text(
-                          "Indice de IMC ${indiceIMC.imc.toStringAsFixed(2)} \n - ${indiceIMC.classificacaoIMC}"),
+                          "${indiceIMC.descricao}\nIndice de IMC ${indiceIMC.imc.toStringAsFixed(2)} \n - ${indiceIMC.classificacaoIMC}"),
                       subtitle: Text(
                           "Peso: ${indiceIMC.peso.toStringAsFixed(2)}  Altura: ${indiceIMC.altura.toStringAsFixed(2)}"),
                       trailing: Text(
