@@ -1,4 +1,4 @@
-import 'package:calculadora_imc/model/imc.dart';
+import 'package:calculadora_imc/model/imc_model.dart';
 import 'package:calculadora_imc/repositories/imc_repository.dart';
 import 'package:calculadora_imc/shared/widgets/calcula_IMC.dart';
 import 'package:calculadora_imc/shared/widgets/text_label.dart';
@@ -12,8 +12,9 @@ class ImcPage extends StatefulWidget {
 }
 
 class _ImcPageState extends State<ImcPage> {
-  var indiceIMCRepository = IndiceIMCRepository();
-  var _indiceIMC = const <IndiceIMC>[];
+  late ImcRepository imcRepository;
+  var _indiceIMC = const <ImcModel>[];
+  var descricaoController = TextEditingController();
   double peso = 0;
   double altura = 0;
 
@@ -24,7 +25,8 @@ class _ImcPageState extends State<ImcPage> {
   }
 
   void obterIndiceIMC() async {
-    _indiceIMC = await indiceIMCRepository.listar();
+    imcRepository = await ImcRepository.carregar();
+    _indiceIMC = imcRepository.obterDados();
     setState(() {});
   }
 
@@ -52,6 +54,10 @@ class _ImcPageState extends State<ImcPage> {
                   content: StatefulBuilder(builder: (context, setState) {
                     return Wrap(
                       children: [
+                        const TextLabel(texto: "Descrição"),
+                        TextField(
+                          controller: descricaoController,
+                        ),
                         TextLabel(
                             texto: "Peso ${peso.toStringAsFixed(2)} (Kg)"),
                         Slider(
@@ -99,7 +105,8 @@ class _ImcPageState extends State<ImcPage> {
                                         "A altura precisa ser maior que 0, informe um valor")));
                             return;
                           }
-                          await indiceIMCRepository.adicionar(IndiceIMC(
+                          await imcRepository.salvar(ImcModel.criar(
+                              descricaoController.text,
                               DateTime.now(),
                               peso,
                               altura,
@@ -128,10 +135,10 @@ class _ImcPageState extends State<ImcPage> {
                   var indiceIMC = _indiceIMC[index];
                   return Dismissible(
                     onDismissed: (DismissDirection dismissDirection) async {
-                      await indiceIMCRepository.remover(indiceIMC.id);
+                      await imcRepository.excluir(indiceIMC);
                       obterIndiceIMC();
                     },
-                    key: Key(indiceIMC.id),
+                    key: Key(indiceIMC.descricao),
                     child: ListTile(
                       //leading: const Text(),
                       title: Text(
@@ -139,7 +146,7 @@ class _ImcPageState extends State<ImcPage> {
                       subtitle: Text(
                           "Peso: ${indiceIMC.peso.toStringAsFixed(2)}  Altura: ${indiceIMC.altura.toStringAsFixed(2)}"),
                       trailing: Text(
-                          "${indiceIMC.data.day}/${indiceIMC.data.month}/${indiceIMC.data.year}"),
+                          "${indiceIMC.data?.day}/${indiceIMC.data?.month}/${indiceIMC.data?.year}"),
                     ),
                   );
                 },
